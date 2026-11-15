@@ -1,5 +1,5 @@
 import {
-  LUNAR_DAY, SITES, bodyAzimuths, evaluate, nearestColdTrap, recommendPreset, resolveSite, suggestNearby,
+  LUNAR_DAY, SITES, bodyAzimuths, evaluate, nearestColdTrap, resolveSite, suggestNearby,
   type Evaluation, type NearbySuggestion, type Site,
 } from './model';
 import {
@@ -60,6 +60,11 @@ function fmtDays(days: number): string {
   if (days <= 0) return '0 days';
   if (days === 1) return '1 day';
   return `${fmt(days, days < 1 ? 2 : 1)} days`;
+}
+
+function sideDays(days: number, suffix = ''): string {
+  if (days >= 29.5) return '>29.5 days';
+  return `${fmtDays(days)}${suffix}`;
 }
 
 function fmtCoord(value: number, latitude: boolean): string {
@@ -193,43 +198,21 @@ function drawAllHorizons(): void {
 
 function renderSites(): void {
   const list = $('site-list'); list.replaceChildren();
-  const recommendation = recommendPreset(state.date, state.dayOffset);
   for (const site of SITES) {
     const button = document.createElement('button');
     button.type = 'button'; button.className = 'place-button';
     button.classList.toggle('active', site.id === state.site.id);
-    button.classList.toggle('best', site.id === recommendation?.site.id);
     button.setAttribute('aria-pressed', site.id === state.site.id ? 'true' : 'false');
     const text = document.createElement('span');
     const name = document.createElement('strong'); name.className = 'place-name'; name.textContent = site.name;
     const distance = document.createElement('small'); distance.className = 'place-distance';
     distance.textContent = `${fmt(nearestColdTrap(site).distanceKm)} km to ice`;
     text.append(name, distance); button.append(text);
-    if (site.id === recommendation?.site.id) {
-      const badge = document.createElement('span');
-      badge.className = 'best-site-badge';
-      badge.textContent = '★ Best';
-      badge.title = 'Best balance for the selected time';
-      button.append(badge);
-    }
     button.addEventListener('click', () => {
       state.site = site; state.suggestion = null; state.markerX = .5; render();
     });
     list.append(button);
   }
-  const summary = $('best-site-summary');
-  summary.replaceChildren();
-  summary.classList.toggle('unavailable', recommendation === null);
-  const heading = document.createElement('strong');
-  const detail = document.createElement('span');
-  if (recommendation) {
-    heading.textContent = `${recommendation.site.name} · ${fmt(recommendation.score)} points`;
-    detail.textContent = 'Sunlight and Earth link now · 75% Survival + 25% Science.';
-  } else {
-    heading.textContent = 'No viable site right now';
-    detail.textContent = 'None of the four has both sunlight and a direct Earth link. Try another date.';
-  }
-  summary.append(heading, detail);
 }
 
 function renderTimers(): void {
@@ -249,6 +232,7 @@ function renderPassports(): void {
   $('passport-prev').disabled = count < 2;
   $('passport-next').disabled = count < 2;
   $('passport-clear').disabled = count === 0;
+  document.querySelector('.passports-panel')?.toggleAttribute('hidden', count === 0);
   if (!state.passports.length) {
     const empty = document.createElement('div'); empty.className = 'empty-passports';
     empty.textContent = 'Save a site and date to compare up to three options.';
@@ -434,7 +418,7 @@ async function toggleSound(): Promise<void> {
     state.soundOn = false;
   }
   const label = $('sound-toggle').querySelector('.sound-label');
-  if (label) label.textContent = state.soundOn ? 'Sound on' : 'Sound off';
+  if (label) label.textContent = state.soundOn ? 'Sun tone · Earth pulse' : 'Play the horizon';
   $('sound-toggle').setAttribute('aria-pressed', state.soundOn ? 'true' : 'false');
   syncSound();
 }
@@ -471,10 +455,10 @@ function render(): void {
   $('science-fill').style.width = `${e.science}%`;
   $('survival-fill').style.width = `${e.survival}%`;
   $('battery-fill').style.width = `${e.battery}%`;
-  $('now-light').textContent = `${fmtDays(e.currentLightDays)} of sunlight`;
-  $('later-light').textContent = `${fmtDays(state.later.currentLightDays)} of sunlight`;
-  $('now-comm').textContent = fmtDays(e.currentCommDays);
-  $('later-comm').textContent = fmtDays(state.later.currentCommDays);
+  $('now-light').textContent = sideDays(e.currentLightDays, ' of sunlight');
+  $('later-light').textContent = sideDays(state.later.currentLightDays, ' of sunlight');
+  $('now-comm').textContent = sideDays(e.currentCommDays);
+  $('later-comm').textContent = sideDays(state.later.currentCommDays);
   $('comm-shift').textContent = `Earth link ${fmtDays(e.currentCommDays)} → ${fmtDays(state.later.currentCommDays)}`;
   $('verdict').textContent = state.suggestion
     ? `This site is in shadow on the new date. A point ${fmt(state.suggestion.distanceKm)} km along the same ridge has better survival conditions (${e.survival} → ${state.suggestion.evaluation.survival}).`

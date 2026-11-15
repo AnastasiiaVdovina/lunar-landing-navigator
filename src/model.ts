@@ -208,7 +208,7 @@ function shadowAgeDays(site: Site, at: number): number {
 }
 
 function verdictFor(site: Site, sun: boolean, earth: boolean, science: number): string {
-  if (sun && earth && science >= 45) return 'Power is holding and Earth is in view. The cold-trap target is close—a strong option.';
+  if (sun && earth && science >= 45) return 'Power is holding and Earth is in view. The cold-trap target is close-a strong option.';
   if (sun && earth && science < 30) return 'Power and contact look good. The cold-trap target is farther away.';
   if (!sun && science >= 45) return 'The cold-trap target is nearby, but the Sun is below the ridge. Battery reserve is shrinking.';
   if (sun && !earth) return 'Sunlight can power the lander, but Earth is below the horizon. Wait for a direct-link window.';

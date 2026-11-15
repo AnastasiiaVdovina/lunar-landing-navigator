@@ -1,4 +1,4 @@
-# Landing Site Navigator — educational model
+# Landing Site Navigator - educational model
 
 An interactive 2D website for comparing a landing site and date near the Moon's south pole. It shows the Sun and Earth relative to an illustrative horizon, the availability of sunlight and direct Earth communication, and proximity to a hypothetical cold trap. Everything is calculated locally in the browser. There is no backend, account, API key, or request for lunar data.
 
@@ -41,4 +41,4 @@ The illustrative cold-trap distance and **Science** score vary with coordinates.
 
 The website does not load LOLA, LRO, JPL Horizons, SPICE, or shadow maps. Its four site coordinates are rounded for teaching, its cold traps are invented, and its local horizon mask is illustrative. A real landing decision would require measured terrain, precise ephemerides, spacecraft characteristics, and independent safety review.
 
-References for the mathematical approach: [altitude formula — U.S. Naval Observatory](https://aa.usno.navy.mil/faq/alt_az), [Moon radius — NASA](https://science.nasa.gov/wp-content/uploads/2023/09/Earths-Moon.pdf), [lunar day and axial tilt — NASA](https://ntrs.nasa.gov/api/citations/20205007447/downloads/SLS-SPEC-159%20Cross-Program%20Design%20Specification%20for%20Natural%20Environments%20%28DSNE%29%20REVISION%20H.pdf), and [patchy polar ice — NASA JPL](https://www.jpl.nasa.gov/news/ice-confirmed-at-the-moons-poles/). These sources do not supply this demo's starting phases, hypothetical cold-trap coordinates, or horizon thresholds.
+References for the mathematical approach: [altitude formula - U.S. Naval Observatory](https://aa.usno.navy.mil/faq/alt_az), [Moon radius - NASA](https://science.nasa.gov/wp-content/uploads/2023/09/Earths-Moon.pdf), [lunar day and axial tilt - NASA](https://ntrs.nasa.gov/api/citations/20205007447/downloads/SLS-SPEC-159%20Cross-Program%20Design%20Specification%20for%20Natural%20Environments%20%28DSNE%29%20REVISION%20H.pdf), and [patchy polar ice - NASA JPL](https://www.jpl.nasa.gov/news/ice-confirmed-at-the-moons-poles/). These sources do not supply this demo's starting phases, hypothetical cold-trap coordinates, or horizon thresholds.
