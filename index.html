@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0e1220" />
+    <meta name="description" content="An educational landing site navigator for the Moon's south polar region." />
+    <title>Landing Site Navigator · NASA Space Apps Challenge 2026</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <svg class="svg-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="icon-science" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 8.2A2 2 0 0 0 6.7 20h10.6a2 2 0 0 0 1.7-2.8L14 9V3M8 15h8" /></symbol>
+      <symbol id="icon-survival" viewBox="0 0 24 24"><path d="M12 2 20 6v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6zM8.5 12l2.3 2.3 4.7-5" /></symbol>
+      <symbol id="icon-battery" viewBox="0 0 24 24"><rect x="2" y="6" width="18" height="12" rx="2" /><path d="M22 10v4M5.5 9.5h8v5h-8z" /></symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+      <symbol id="icon-earth" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.4 3.7 5.4 3.7 9s-1.2 6.6-3.7 9c-2.5-2.4-3.7-5.4-3.7-9S9.5 5.4 12 3z" /></symbol>
+    </svg>
+    <div class="app-shell">
+      <div class="dashboard">
+        <aside class="panel site-panel" aria-labelledby="site-heading">
+          <div class="section-number">01 / SITE</div>
+          <div class="site-heading-line">
+            <h2 id="site-heading">Site</h2>
+            <span class="small-orbit" aria-hidden="true">◎</span>
+          </div>
+          <p class="panel-intro">Choose a ridge near the lunar south pole or enter coordinates.</p>
+          <div id="site-list" class="site-list" role="group" aria-label="Example landing sites"></div>
+          <div id="best-site-summary" class="best-site-summary" aria-live="polite"></div>
+          <div class="coords-entry">
+            <div class="section-number">CUSTOM POINT</div>
+            <div class="coords-grid">
+              <label for="lat-input">Latitude, °
+                <input id="lat-input" type="number" min="-90" max="-80" step="0.00001" inputmode="decimal" placeholder="−89.9" />
+              </label>
+              <label for="lon-input">Longitude, °
+                <input id="lon-input" type="number" min="-180" max="180" step="0.00001" inputmode="decimal" placeholder="0" />
+              </label>
+            </div>
+            <button id="coord-apply" class="button button-muted full-button" type="button">Show point <span aria-hidden="true">↗</span></button>
+            <p id="coord-error" class="coord-error" role="alert" aria-live="polite"></p>
+            <div id="custom-name-controls" class="custom-name-controls" hidden>
+              <label for="custom-name-input">Custom point name</label>
+              <div class="custom-name-row">
+                <input id="custom-name-input" type="text" maxlength="48" autocomplete="off" placeholder="My point" />
+                <button id="custom-name-save" class="button button-muted" type="button">Save name</button>
+              </div>
+            </div>
+          </div>
+          <p class="site-footnote"><span>Illustrative distance to a hypothetical cold trap near known craters.</span><span>Ice is fixed to the surface, so its marker does not move with time. It is a guide, not a deposit measurement.</span><span>Drag the horizon marker to adjust longitude slightly.</span></p>
+        </aside>
+
+        <main class="center-panel">
+          <div class="hero-line">
+            <div class="hero-title">
+              <span class="eyebrow">NASA SPACE APPS CHALLENGE 2026 · DEMO</span>
+              <h1>Landing Site Navigator</h1>
+            </div>
+            <button id="sound-toggle" class="sound-button" type="button" aria-pressed="false" title="Toggle sound">
+              <span class="sound-icon" aria-hidden="true">♫</span><span class="sound-label">Sound off</span>
+            </button>
+          </div>
+
+          <div class="layer-row" role="group" aria-label="Visual horizon layers">
+            <label class="layer-pill light-pill"><input id="layer-light" type="checkbox" checked /><span class="pill-dot"></span>Sunlight</label>
+            <label class="layer-pill earth-pill"><input id="layer-earth" type="checkbox" checked /><span class="pill-dot"></span>Earth</label>
+            <label class="layer-pill ice-pill"><input id="layer-ice" type="checkbox" checked /><span class="pill-dot"></span>Ice</label>
+            <span class="layer-helper">Layers change the drawing only</span>
+          </div>
+
+          <section class="panel horizon-panel" aria-labelledby="horizon-heading">
+            <div class="horizon-head">
+              <div><span class="eyebrow">VIEW FROM THE SURFACE</span><h2 id="horizon-heading">Local horizon</h2></div>
+              <strong id="selected-name">Shackleton</strong>
+            </div>
+            <div class="horizon-stage">
+              <canvas id="main-horizon" tabindex="0" role="slider" aria-label="Horizon. Drag the marker along the ridge to change longitude." aria-valuemin="-180" aria-valuemax="180"></canvas>
+              <div class="canvas-readouts" aria-live="polite">
+                <span class="readout-sun"><i></i><span id="sun-label">Sun —</span></span>
+                <span class="readout-earth"><i></i><span id="earth-label">Earth —</span></span>
+              </div>
+            </div>
+            <div class="horizon-foot">
+              <span id="current-coords">—</span>
+              <label for="landing-date">Landing date
+                <input id="landing-date" type="date" />
+              </label>
+            </div>
+            <div class="timeline-box">
+            <div class="timeline-top"><label for="day-slider">Lunar day</label><strong id="day-label">day 0.0 / 29.5</strong></div>
+            <input id="day-slider" type="range" min="0" max="29.5" step="0.25" value="0" />
+            <div class="timeline-ends"><span>Landing</span><span>14 days</span><span>29.5 days</span></div>
+            </div>
+          </section>
+
+          <div class="score-grid" aria-label="Selected scenario indicators">
+            <div class="score-card science-card"><div class="score-head"><span class="metric-label"><svg class="metric-icon" aria-hidden="true"><use href="#icon-science" /></svg>Science</span><strong id="science-value">—</strong></div><div class="score-track"><span id="science-fill"></span></div></div>
+            <div class="score-card survival-card"><div class="score-head"><span class="metric-label"><svg class="metric-icon" aria-hidden="true"><use href="#icon-survival" /></svg>Survival</span><strong id="survival-value">—</strong></div><div class="score-track"><span id="survival-fill"></span></div></div>
+            <div class="score-card battery-card"><div class="score-head"><span class="metric-label"><svg class="metric-icon" aria-hidden="true"><use href="#icon-battery" /></svg>Battery</span><strong id="battery-value">—</strong></div><div class="score-track"><span id="battery-fill"></span></div></div>
+          </div>
+
+          <div class="verdict-box"><span class="eyebrow">QUICK VERDICT</span><p id="verdict" aria-live="polite">Choose a site and date to see landing conditions.</p><button id="suggestion-action" class="suggestion-action" type="button" hidden>Show nearby site →</button></div>
+          <div class="main-actions">
+            <button id="delay-start" class="button button-muted" type="button">Delay launch <span>+ 14 days</span></button>
+            <button id="save-passport" class="button button-accent" type="button">Save mission card <span aria-hidden="true">↗</span></button>
+          </div>
+        </main>
+
+        <aside class="right-panel" aria-label="Compare the current time with 14 days later">
+          <section class="panel frame-card now-card" aria-labelledby="now-heading">
+            <div class="frame-head"><span class="section-number">02 / NOW</span><h2 id="now-heading">Now</h2></div>
+            <canvas id="now-horizon" class="small-horizon" role="img" aria-label="Sun and Earth above the local horizon now"></canvas>
+            <div class="frame-stats"><span class="mini-stat light-stat"><svg class="mini-icon" aria-hidden="true"><use href="#icon-sun" /></svg><span id="now-light">— days of light</span></span><span class="mini-stat comm-stat"><svg class="mini-icon" aria-hidden="true"><use href="#icon-earth" /></svg><span id="now-comm">— days of communication</span></span></div>
+          </section>
+          <section class="panel frame-card later-card" aria-labelledby="later-heading">
+            <div class="frame-head"><span class="section-number">03 / OUTLOOK</span><h2 id="later-heading">In 14 days</h2></div>
+            <canvas id="later-horizon" class="small-horizon" role="img" aria-label="Sun and Earth above the local horizon in 14 days"></canvas>
+            <div class="frame-stats"><span class="mini-stat light-stat"><svg class="mini-icon" aria-hidden="true"><use href="#icon-sun" /></svg><span id="later-light">— days of light</span></span><span class="mini-stat comm-stat"><svg class="mini-icon" aria-hidden="true"><use href="#icon-earth" /></svg><span id="later-comm">— days of communication</span></span></div>
+          </section>
+          <section class="panel timers-panel" aria-label="Sunlight and communication timers">
+            <span class="section-number">NEXT CHANGE</span>
+            <div class="comm-shift"><svg class="mini-icon" aria-hidden="true"><use href="#icon-earth" /></svg><span id="comm-shift">Communication — days → — days</span></div>
+            <div class="timer-row"><svg class="timer-symbol sun-symbol" aria-hidden="true"><use href="#icon-sun" /></svg><span id="sun-timer">Sun —</span></div>
+            <div class="timer-row"><svg class="timer-symbol earth-symbol" aria-hidden="true"><use href="#icon-earth" /></svg><span id="earth-timer">Earth —</span></div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="panel passports-panel" aria-labelledby="passports-heading">
+        <div class="passports-head">
+          <div>
+            <span class="section-number">04 / COMPARE</span>
+            <h2 id="passports-heading">Mission cards</h2>
+            <span class="passport-hint">Up to three options · select a card to restore it</span>
+          </div>
+          <div class="passport-controls" role="group" aria-label="Mission card controls">
+            <span id="passport-position" class="passport-position" role="status" aria-live="polite">0 / 0</span>
+            <button id="passport-prev" class="passport-nav" type="button" aria-label="Previous mission card" title="Previous mission card" disabled>←</button>
+            <button id="passport-next" class="passport-nav" type="button" aria-label="Next mission card" title="Next mission card" disabled>→</button>
+            <button id="passport-clear" class="passport-clear" type="button" disabled>Clear all</button>
+          </div>
+        </div>
+        <div id="passport-list" class="passport-list" aria-live="polite"><div class="passport-empty">Saved sites and dates will appear here.</div></div>
+      </section>
+      <footer>Educational flat-horizon model for comparing scenarios. Values are illustrative, not measurements from LOLA or Horizons.</footer>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
