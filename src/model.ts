@@ -1,5 +1,5 @@
 /**
- * Flat-horizon teaching model for Lunar Landing Site Navigator.
+ * Flat-horizon teaching model for LuNaVi.
  * Coordinates and distances for the four example locations are rounded for demonstration.
  * These are not LOLA or Horizons measurements, ice detections, or landing safety assessments.
  */
@@ -51,12 +51,6 @@ export interface NearbySuggestion {
   site: Site;
   evaluation: Evaluation;
   distanceKm: number;
-}
-
-export interface PresetRecommendation {
-  site: Site;
-  evaluation: Evaluation;
-  score: number;
 }
 
 // Rounded teaching coordinates and illustrative distances to cold-trap targets.
@@ -252,24 +246,6 @@ export function evaluate(site: Site, landingDate: string, dayOffset: number): Ev
     joint14Fraction,
     verdict: verdictFor(site, sunVisible, earthVisible, science),
   };
-}
-
-/** Choose a teaching preset for the selected moment, with immediate visibility required. */
-export function recommendPreset(landingDate: string, dayOffset: number): PresetRecommendation | null {
-  let best: PresetRecommendation | null = null;
-  for (const site of SITES) {
-    const evaluation = evaluate(site, landingDate, dayOffset);
-    if (!evaluation.sunVisible || !evaluation.earthVisible || evaluation.survival === 0) continue;
-    // Mission operation is weighted more heavily than the illustrative ice score.
-    const score = 0.75 * evaluation.survival + 0.25 * evaluation.science;
-    if (!best || score > best.score ||
-      (score === best.score && evaluation.survival > best.evaluation.survival) ||
-      (score === best.score && evaluation.survival === best.evaluation.survival &&
-        evaluation.science > best.evaluation.science)) {
-      best = { site, evaluation, score };
-    }
-  }
-  return best;
 }
 
 function destination(site: Site, km: number, bearingDeg: number): { lat: number; lon: number } {
