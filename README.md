@@ -1,44 +1,45 @@
-# Landing Site Navigator - educational model
+# LuNaVi
 
-An interactive 2D website for comparing a landing site and date near the Moon's south pole. It shows the Sun and Earth relative to an illustrative horizon, the availability of sunlight and direct Earth communication, and proximity to a hypothetical cold trap. Everything is calculated locally in the browser. There is no backend, account, API key, or request for lunar data.
+The site is already up: [diachenkodenis.github.io/lunavi](https://diachenkodenis.github.io/lunavi/)
 
-**The geometry is real, but the input data is illustrative.** A calendar date changes the scenario; the website does not predict the actual sky on that date.
+Near the Moon's south pole, a landing site can look fine and then go dark. Move it a few kilometers, or slip the date by a day, and the Sun drops behind the ridge. That is the power. If Earth drops too, the direct radio link goes with it.
 
-## Run in PyCharm
+LuNaVi is a page for trying that out. Pick a crater and a date, watch both bodies on one horizon, then move the date and see what is left.
 
-1. Install Node.js with npm. Open the `lunar-landing-navigator` folder in PyCharm using **File → Open**.
-2. Open PyCharm's **Terminal** and run `npm install`. This installs Vite and TypeScript once; internet access is needed for that step.
-3. Run `npm run dev`.
-4. Open the address printed in the terminal, usually [http://127.0.0.1:5173/](http://127.0.0.1:5173/). Stop the server with `Ctrl+C`.
-5. Run `npm run build` to check the production build. Its files appear in `dist/`. To view that build, run `npm run preview` and open the address printed by Vite.
+The sky here is a flat-horizon sketch that runs in the browser. Use it to compare one scenario with another. The angles are not a forecast of the real sky on that calendar day. We never call LOLA, LRO, or JPL Horizons.
 
-After `npm install`, the website runs locally without internet access. Do not open `index.html` directly as a `file://` page; use the Vite server to load its browser modules.
+## What the page does
 
-## Use the navigator
+Four craters are already listed: Shackleton, Mouton, Malapert, and Cabeus. You can type your own point too, anywhere from 90°S to 80°S, and give it a name. Drag the marker on the horizon if you only want to nudge the longitude.
 
-- Choose one of four example sites, enter your own coordinates (latitude from −90° to −80°), or drag the marker along the illustrated horizon to adjust longitude slightly. You can rename a custom point in the coordinate panel.
-- The gold **Leader** marker identifies the best-balanced of the four example sites **for the selected date and slider time**. Only sites where both the Sun and Earth are currently visible qualify. The comparison then uses `0.75 × Survival + 0.25 × Science`. If none qualifies, no leader is shown. The green outline separately marks your selected site.
-- Change the landing date or move the **Lunar day** slider. The date picker changes the date; the slider adds time within a lunar cycle without rewriting that date. **Delay launch** adds 14 days.
-- The **Sunlight**, **Earth**, and **Ice** switches affect the drawing only. The ice marker represents a fixed hypothetical surface point, so it does not move with time. The Sun and Earth move relative to the horizon.
-- Save up to three mission cards. A card restores the name, coordinates, date, slider time, and marker position. The arrows cycle through cards; × deletes one card; **Clear all** deletes them all. Saving a fourth card replaces the oldest. Data stays in this browser's `localStorage` only.
-- Sound starts only after you click the sound button. A continuous tone represents available sunlight; short pulses represent visible Earth. This is an interface cue: sound does not travel through the lunar vacuum.
+The date picker is the landing day. The lunar-day slider walks through the cycle and leaves that date alone. **Delay launch** adds 14 days.
 
-## How the model works
+The Sunlight, Earth, and Ice switches only change the drawing. The ice mark stays where it was placed. The Sun and Earth move.
 
-Time `d` is counted in Earth days from **November 15, 2026**. For the observer's latitude `φ` and longitude `λ`, and the point directly below the Sun or Earth on the lunar sphere (`δ`, `λ₀`), the body's altitude above a level horizon is:
+**Science** is how close the point sits to a cold trap we placed by hand. Changing the date does not move it. **Survival** is the share of the next 14 days when the Sun and Earth are both up. **Battery** rises while the Sun clears the ridge and falls once it sets. These are scores for comparing sites, the way a planner might glance at them. They are not a lander design.
 
-`sin(h) = sin(φ)·sin(δ) + cos(φ)·cos(δ)·cos(λ − λ₀)`.
+**Save mission card** keeps up to three snapshots in this browser: the name, the coordinates, the date, the slider, and the marker. Saving a fourth card drops the oldest. **Clear all** removes them. Nothing is sent anywhere.
 
-This is the standard spherical altitude formula. The model moves the subsolar point using a **29.53 Earth-day** lunar synodic cycle, with a small seasonal latitude change of amplitude **1.54°**. An illustrative **27.3-day** oscillation of the sub-Earth point demonstrates libration. **The starting phase on November 15, 2026 and the Sun/Earth position functions are illustrative, not ephemerides.** The displayed angles and timers therefore are not astronomical predictions for the entered date.
+**Play the horizon** starts the sound, and only after you click it. A low tone plays while the Sun is up. A short pulse plays while Earth is in view. Each one stops the moment that body sets. On the Moon there is no air, so we cut the sound off instead of letting it fade.
 
-The Sun is visible when its altitude `h☉` exceeds the point's illustrative horizon threshold; Earth is visible when `h⊕ > 0°`. The Sun label displays `h☉` **minus the threshold**, showing how far above or below the ridge it lies. The model adds no atmospheric twilight. The solar threshold is specified manually for the four example sites and varies smoothly along a notional ridge for custom points. The illustrated ridge is not a measured terrain profile.
+## Where the numbers come from
 
-The illustrative cold-trap distance and **Science** score vary with coordinates. Using a lunar sphere of radius **1,737.4 km**, the model finds the shortest great-circle distance (haversine formula) to the closest of four **hypothetical fixed points**. Those points are placed at the supplied demo distances of **1.2, 4, 6, and 0.3 km** from the four example sites. The score is `100 × 1.2 / (D + 1.2)`, where `D` is distance in kilometers, rounded to one decimal place. This is a continuous proximity indicator, **not an ice map or a measurement of ice**. Actual polar surface ice is patchy.
+Time is counted in Earth days from 15 November 2026. For a site at latitude φ and longitude λ, the altitude of the Sun or Earth over a level horizon is the usual one:
 
-**Survival** is the percentage of the next 14 days when sunlight and direct Earth visibility coincide. The model samples 56 times at **0.25-day (six-hour)** intervals. This is a comparative score, not a spacecraft's probability of survival. **Battery** is an illustrative indicator without an electrical model. Timers also have only six-hour resolution and may miss short visibility windows.
+`sin(h) = sin(φ) sin(δ) + cos(φ) cos(δ) cos(λ − λ₀)`
 
-## Limits and sources
+δ and λ₀ are the latitude and longitude of the point on the Moon directly under that body.
 
-The website does not load LOLA, LRO, JPL Horizons, SPICE, or shadow maps. Its four site coordinates are rounded for teaching, its cold traps are invented, and its local horizon mask is illustrative. A real landing decision would require measured terrain, precise ephemerides, spacecraft characteristics, and independent safety review.
+The Sun goes around once every 29.53 Earth days, and its latitude wobbles by about 1.54° through the year. Earth shifts on a 27.3-day libration, by up to about 6°. The phase on 15 November 2026 is an anchor we picked so the demo has a rhythm. A real ephemeris would put the bodies somewhere else.
 
-References for the mathematical approach: [altitude formula - U.S. Naval Observatory](https://aa.usno.navy.mil/faq/alt_az), [Moon radius - NASA](https://science.nasa.gov/wp-content/uploads/2023/09/Earths-Moon.pdf), [lunar day and axial tilt - NASA](https://ntrs.nasa.gov/api/citations/20205007447/downloads/SLS-SPEC-159%20Cross-Program%20Design%20Specification%20for%20Natural%20Environments%20%28DSNE%29%20REVISION%20H.pdf), and [patchy polar ice - NASA JPL](https://www.jpl.nasa.gov/news/ice-confirmed-at-the-moons-poles/). These sources do not supply this demo's starting phases, hypothetical cold-trap coordinates, or horizon thresholds.
+The Sun counts as up only after it clears that site's ridge. On the four craters those ridges are 0.5°, 1.5°, 1.0°, and 2.0°. A point you type in gets a ridge that varies along an imaginary line. Earth counts as up above 0°. The Sun label shows how far it sits above or below the ridge. There is no atmosphere in the model, so there is no twilight either.
+
+The four cold traps sit 1.2 km, 4 km, 6 km, and 0.3 km from those craters. A custom point uses whichever of those traps is closest, measured on a Moon 1,737.4 km across. Science is `100 × 1.2 / (D + 1.2)`, with D in kilometers, rounded to one decimal. Closer is higher. We placed the traps so the score would have a shape. Polar ice on the real Moon is patchy, and this is not a map of it.
+
+Survival checks the next 14 days every six hours, 56 times, and counts the steps where both bodies are up. A window shorter than six hours can slip through. While the Sun is up, battery is `70 + 10 × (sun angle − ridge)`, held between 70 and 100. In the dark it starts at 40 and drops by 5 for each day the shadow has already lasted, down to 5.
+
+## Reading list
+
+The altitude formula is the standard one from the [U.S. Naval Observatory](https://aa.usno.navy.mil/faq/alt_az). The Moon's radius is from [NASA](https://science.nasa.gov/wp-content/uploads/2023/09/Earths-Moon.pdf). The length of a lunar day and the 1.54° tilt are in NASA's [cross-program natural environments spec](https://ntrs.nasa.gov/api/citations/20205007447/downloads/SLS-SPEC-159%20Cross-Program%20Design%20Specification%20for%20Natural%20Environments%20%28DSNE%29%20REVISION%20H.pdf). Patchy polar ice is described by [NASA JPL](https://www.jpl.nasa.gov/news/ice-confirmed-at-the-moons-poles/).
+
+Those pages did not give us the starting phase, the cold-trap coordinates, or the ridge heights. A real landing call still needs measured terrain, a real ephemeris, and a spacecraft team.
